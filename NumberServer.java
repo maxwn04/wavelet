@@ -1,11 +1,12 @@
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 
 class Handler implements URLHandler {
     // The one bit of state on the server: a number that will be manipulated by
     // various requests.
     int num = 0;
-
+    ArrayList<String> searches = new ArrayList<>();
     public String handleRequest(URI url) {
         if (url.getPath().equals("/")) {
             return String.format("Max's Number: %d", num+3);
@@ -19,7 +20,23 @@ class Handler implements URLHandler {
                 if (parameters[0].equals("count")) {
                     num += Integer.parseInt(parameters[1]);
                     return String.format("Number increased by %s! It's now %d", parameters[1], num);
+                }else if(parameters[0].equals("s")){
+                    searches.add(parameters[1]);
+                    return String.format("\"%s\" Added", parameters[1]);
                 }
+            }
+            if (url.getPath().contains("/search")){
+                String search = url.getQuery().split("=")[1];
+                String result = "";
+                for(int i = 0; i < searches.size(); i++){
+                    if(searches.get(i).contains(search)){
+                        result += searches.get(i)+"\n";
+                    }
+                }
+                if (result.length() == 0){
+                    return "No search results found";
+                }
+                return result; 
             }
             return "404 Not Found!";
         }
